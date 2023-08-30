@@ -20,3 +20,8 @@ import Tabs from '@mui/material/Tabs';
 ❌ NOT OK
 import TabIndicator from '@mui/material/Tabs/TabIndicator';
 // ^^^^^^^^^^^^ 3rd level
+
+# CssBaseline
+
+Có những feature trang web ở chrome chạy tốt, sang các trình duyệt khác bị lỗi nên material cung cấp CssBaseline để hỗ trợ và fix điểm ko nhất quán giữa các trình
+duyệt (giống thư viện normalizeCss)
