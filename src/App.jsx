@@ -1,4 +1,3 @@
-import Button from '@mui/material/Button'
 import { useColorScheme } from '@mui/material/styles'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
@@ -8,38 +7,55 @@ import LightModeIcon from '@mui/icons-material/LightMode'
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined'
 import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness'
 import Box from '@mui/material/Box'
+import Container from '@mui/material/Container'
 
 const App = () => {
   return (
-    <div>
-      <ModeToggle></ModeToggle>
-      <ModeSelect></ModeSelect>
-      <Button variant='contained'>Hello world</Button>
-    </div>
-  )
-}
+    <Container disableGutters maxWidth={false} sx={{ height: '100vh' }}>
+      <Box
+        sx={{
+          backgroundColor: 'primary.light',
+          height: (theme) => theme.trello.appBarHeight,
+          display: 'flex',
+          alignItems: 'center'
+        }}
+      >
+        <ModeSelect></ModeSelect>
+      </Box>
 
-function ModeToggle() {
-  const { mode, setMode } = useColorScheme()
-  return (
-    <Button
-      onClick={() => {
-        setMode(mode === 'light' ? 'dark' : 'light')
-      }}
-    >
-      {mode === 'light' ? 'Turn dark' : 'Turn light'}
-    </Button>
+      <Box
+        sx={{
+          backgroundColor: 'primary.dark',
+          height: (theme) => theme.trello.boardBarHeight,
+          display: 'flex',
+          alignItems: 'center'
+        }}
+      >
+        Board Bar
+      </Box>
+
+      <Box
+        sx={{
+          width: '100%',
+          height: (theme) =>
+            `calc(100vh - ${theme.trello.appBarHeight} - ${theme.trello.boardBarHeight})`,
+          display: 'flex',
+          alignItems: 'center',
+          backgroundColor: 'primary.main'
+        }}
+      >
+        Board Content
+      </Box>
+    </Container>
   )
 }
 
 function ModeSelect() {
   const { mode, setMode } = useColorScheme()
-
   const handleChange = (event) => {
     const selectedMode = event.target.value
     setMode(selectedMode)
   }
-
   return (
     <FormControl sx={{ m: 1, minWidth: 120 }} size='small'>
       <InputLabel id='select-dark-light-mode'>Mode</InputLabel>
