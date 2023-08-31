@@ -1,18 +1,21 @@
-import Box from '@mui/material/Box'
+import Workspaces from './Menus/Workspaces'
+import Typography from '@mui/material/Typography'
+import Tooltip from '@mui/material/Tooltip'
+import TextField from '@mui/material/TextField'
+import Templates from './Menus/Templates'
+import SvgIcon from '@mui/material/SvgIcon'
+import Starred from './Menus/Starred'
+import Recent from './Menus/Recent'
+import Profiles from './Menus/Profiles'
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone'
 import ModeSelect from '../ModeSelect'
+import LibraryAddIcon from '@mui/icons-material/LibraryAdd'
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
+import Button from '@mui/material/Button'
+import Box from '@mui/material/Box'
+import Badge from '@mui/material/Badge'
 import AppsIcon from '@mui/icons-material/Apps'
 import { ReactComponent as TrelloIcon } from '~/assets/trello.svg'
-import SvgIcon from '@mui/material/SvgIcon'
-import { Badge, TextField, Typography } from '@mui/material'
-import Workspaces from './Menus/Workspaces'
-import Recent from './Menus/Recent'
-import Starred from './Menus/Starred'
-import Templates from './Menus/Templates'
-import Button from '@mui/material/Button'
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone'
-import Tooltip from '@mui/material/Tooltip'
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
-import Profiles from './Menus/Profiles'
 
 const AppBar = () => {
   return (
@@ -59,7 +62,9 @@ const AppBar = () => {
           <Recent></Recent>
           <Starred></Starred>
           <Templates></Templates>
-          <Button variant='outlined'>Create</Button>
+          <Button variant='outlined' endIcon={<LibraryAddIcon />}>
+            Create
+          </Button>
         </Box>
       </Box>
 
