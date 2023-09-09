@@ -11,15 +11,14 @@ import {
   defaultDropAnimationSideEffects,
   closestCorners,
   pointerWithin,
-  rectIntersection,
-  getFirstCollision,
-  closestCenter
+  getFirstCollision
 } from '@dnd-kit/core'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { arrayMove } from '@dnd-kit/sortable'
 import Column from './ListColumns/Column/Column'
 import Card from './ListColumns/Column/ListCards/Card/Card'
-import { cloneDeep } from 'lodash'
+import { cloneDeep, isEmpty } from 'lodash'
+import { generatePlaceholderCard } from '~/utils/formatters'
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
@@ -102,10 +101,14 @@ const BoardContent = ({ board }) => {
       )
       // Column cũ
       if (nextActiveColumn) {
-        // Xoá card ở cái column active (cũng có thể hiểu là column cũ, cái lúc mà kéo card ra khỏi nó để sang column khác)
+        // Xoá card ở cái column active (cũng có thể hiểu là column cũ, cái lúc mà  kéo card ra khỏi nó để sang column khác)
         nextActiveColumn.cards = nextActiveColumn.cards.filter(
           (card) => card._id !== activeDraggingCardId
         )
+        // Thêm Placeholder Card nếu Column rỗng: Bị kéo hết Card đi, không còn cái nào nữa
+        if (isEmpty(nextActiveColumn.cards)) {
+          nextActiveColumn.cards = [generatePlaceholderCard(nextActiveColumn)]
+        }
         // Cập nhập lại mảng cardOrderIds cho chuẩn dữ liệu
         nextActiveColumn.cardOrderIds = nextActiveColumn.cards.map((c) => c._id)
       }
@@ -120,13 +123,17 @@ const BoardContent = ({ board }) => {
           ...activeDraggingCardData,
           columnId: nextOverColumn._id
         }
-        //Tiếp theo là thêm cái card đang kéo vào overColumn theo vị trí index mới
+        // Tiếp theo là thêm cái card đang kéo vào overColumn theo vị trí index mới
         nextOverColumn.cards = nextOverColumn.cards.toSpliced(
           newCardIndex,
           0,
           rebuild_activeDraggingCardId
         )
-        //Cập nhập lại mảng cardOrderIds cho chuẩn dữ liệu
+        // Xoá cái Placeholder Card đi nếu nó đang tồn tại
+        nextOverColumn.cards = nextOverColumn.cards.filter(
+          (c) => !c.FE_PlaceholderCard
+        )
+        // Cập nhập lại mảng cardOrderIds cho chuẩn dữ liệu
         nextOverColumn.cardOrderIds = nextOverColumn.cards.map((c) => c._id)
       }
       return nextColumns
@@ -297,22 +304,25 @@ const BoardContent = ({ board }) => {
       if (activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN) {
         return closestCorners({ ...args })
       }
-      // Tìm các điểm giao nhau, va chạm - intersections với con trỏ
+      // Tìm các điểm giao nhau, va chạm, trả về một mảng các va chạm -   intersections với con trỏ
       const pointerIntersections = pointerWithin(args)
+      // Fix triệt để cái bug flickering của thư viện dnd-kit trong TH sau:
+      // Kéo 1 cái card có image cover lớn và kéo lên phía trên cùng ra khỏi khu vực kéo thả
+      if (!pointerIntersections?.length) return
       // Thuật toán phát hiện va chạm sẽ trả về một mảng các va chạm ở đây
-      const intersections = !!pointerIntersections?.length
-        ? pointerIntersections
-        : rectIntersection(args)
+      // const intersections = !!pointerIntersections?.length
+      //   ? pointerIntersections
+      //   : rectIntersection(args)
       // Tìm overId đầu tiên trong đám intersections ở trên
-      let overId = getFirstCollision(intersections, 'id')
+      let overId = getFirstCollision(pointerIntersections, 'id')
       if (overId) {
-        // Nếu cái over nó là column thì sẽ tìm tới cái cardId gần nhất bên trong khu vực va chạm đó dựa vào thuật toán phát hiện va chạm closestCenter hoặc closesCorners đều được. Tuy nhiên ở đây dùng closestCenter mượt mà hơn
+        // Nếu cái over nó là column thì sẽ tìm tới cái cardId gần nhất bên trong khu vực va chạm đó dựa vào thuật toán phát hiện va chạm closestCenter hoặc closesCorners đều được. Tuy nhiên ở đây dùng closestCorners mượt mà hơn
         const checkColumn = orderedColumnsState.find(
           (col) => col._id === overId
         )
         if (checkColumn) {
           // console.log('overId Before', overId)
-          overId = closestCenter({
+          overId = closestCorners({
             ...args,
             droppableContainers: args.droppableContainers.filter(
               (container) =>
